@@ -68,9 +68,9 @@ local function close_menu(force_save)
 
   -- Restore the previous buffer in the window (triggers BufLeave, guarded above)
   if win_id ~= nil
-    and vim.api.nvim_win_is_valid(win_id)
-    and prev_bufh ~= nil
-    and vim.api.nvim_buf_is_valid(prev_bufh) then
+      and vim.api.nvim_win_is_valid(win_id)
+      and prev_bufh ~= nil
+      and vim.api.nvim_buf_is_valid(prev_bufh) then
     vim.api.nvim_win_set_buf(win_id, prev_bufh)
   end
 
@@ -237,7 +237,6 @@ function M.update_marks()
   end
 end
 
-
 local quick_keys_enabled = false
 
 local function toggle_buffer_manager_quick_keys()
@@ -278,7 +277,7 @@ local function set_menu_keybindings()
       Buffer_manager_bufh,
       "n",
       value.key,
-      "<Cmd>lua require('buffer_manager.ui').select_menu_item('"..value.command.."')<CR>",
+      "<Cmd>lua require('buffer_manager.ui').select_menu_item('" .. value.command .. "')<CR>",
       {}
     )
   end
@@ -289,12 +288,12 @@ local function set_menu_keybindings()
     )
   )
   vim.cmd(
-    "autocmd BufLeave <buffer> ++nested ++once silent"..
+    "autocmd BufLeave <buffer> ++nested ++once silent" ..
     " lua require('buffer_manager.ui').toggle_quick_menu()"
   )
   vim.cmd(
     string.format(
-      "autocmd BufWriteCmd <buffer=%s>"..
+      "autocmd BufWriteCmd <buffer=%s>" ..
       " lua require('buffer_manager.ui').on_menu_save()",
       Buffer_manager_bufh
     )
@@ -309,11 +308,11 @@ local function set_menu_keybindings()
           "n",
           mark.shortcut,
           string.format(
-            "<Cmd>%s <bar> lua require('buffer_manager.ui')"..
+            "<Cmd>%s <bar> lua require('buffer_manager.ui')" ..
             ".select_menu_item()<CR>",
             idx
           ),
-          {noremap = true, silent = true, nowait = true}
+          { noremap = true, silent = true, nowait = true }
         )
       end
     end
@@ -339,13 +338,13 @@ local function set_menu_keybindings()
     -- Go to file hitting its line key
     local str = config.line_keys
     for i = 1, #str do
-      local c = str:sub(i,i)
+      local c = str:sub(i, i)
       vim.api.nvim_buf_set_keymap(
         Buffer_manager_bufh,
         "n",
         c,
         string.format(
-          "<Cmd>%s <bar> lua require('buffer_manager.ui')"..
+          "<Cmd>%s <bar> lua require('buffer_manager.ui')" ..
           ".select_menu_item()<CR>",
           i
         ),
@@ -365,28 +364,29 @@ function M.unmap_shortcuts()
   vim.api.nvim_buf_del_keymap(Buffer_manager_bufh, "n", "<space>")
 end
 
-
 local function set_win_buf_options(contents, current_buf_line)
-  vim.api.nvim_set_option_value("number", true, { win = Buffer_manager_win_id })
-  local stc = nil
-  local dynamic_width = 1
-  if #contents >= 100 then
-    dynamic_width = 3
-  elseif #contents >= 10 then
-    dynamic_width = 2
-  end
-  vim.api.nvim_set_option_value("numberwidth", dynamic_width, { win = Buffer_manager_win_id })
-  if config.show_cols == "both" then
-    -- [Key] [Space] [Standard Line Number] [Space]
-    stc = " %{v:lua.string.sub('" .. config.line_keys .. "',v:lnum,v:lnum)} %l "
-  elseif config.show_cols == "kbs" then
-    -- [Key] [Space] [Empty space where number was]
-    stc = " %{v:lua.string.sub('" .. config.line_keys .. "',v:lnum,v:lnum)} "
-  elseif config.show_cols == "number" then
-    stc = " %l "
-  end
-  if stc then
-    vim.api.nvim_set_option_value("statuscolumn", stc, { win = Buffer_manager_win_id })
+  if config.show_cols ~= "keep" then
+    vim.api.nvim_set_option_value("number", true, { win = Buffer_manager_win_id })
+    local stc = nil
+    local dynamic_width = 1
+    if #contents >= 100 then
+      dynamic_width = 3
+    elseif #contents >= 10 then
+      dynamic_width = 2
+    end
+    vim.api.nvim_set_option_value("numberwidth", dynamic_width, { win = Buffer_manager_win_id })
+    if config.show_cols == "both" then
+      -- [Key] [Space] [Standard Line Number] [Space]
+      stc = " %{v:lua.string.sub('" .. config.line_keys .. "',v:lnum,v:lnum)} %l "
+    elseif config.show_cols == "kbs" then
+      -- [Key] [Space] [Empty space where number was]
+      stc = " %{v:lua.string.sub('" .. config.line_keys .. "',v:lnum,v:lnum)} "
+    elseif config.show_cols == "number" then
+      stc = " %l "
+    end
+    if stc then
+      vim.api.nvim_set_option_value("statuscolumn", stc, { win = Buffer_manager_win_id })
+    end
   end
 
   for key, value in pairs(config.win_extra_options) do
@@ -484,9 +484,9 @@ function M.toggle_quick_menu()
         end
       end
       if config.show_indicators == 'before' then
-         contents[line] = string.format("      %s", display_name)
+        contents[line] = string.format("      %s", display_name)
       else
-         contents[line] = string.format("%s", display_name)
+        contents[line] = string.format("%s", display_name)
       end
       line = line + 1
     end
@@ -529,8 +529,8 @@ function M.toggle_quick_menu()
             Buffer_manager_bufh,
             ns_short,
             "BufferManagerShortcut",
-            {idx-1, char_pos - 1},
-            {idx-1, char_pos},
+            { idx - 1, char_pos - 1 },
+            { idx - 1, char_pos },
             {}
           )
         else
@@ -538,7 +538,7 @@ function M.toggle_quick_menu()
             Buffer_manager_bufh,
             -1,
             "BufferManagerShortcut",
-            idx-1,
+            idx - 1,
             char_pos - 1,
             char_pos
           )
@@ -605,18 +605,18 @@ function M.toggle_quick_menu()
               Buffer_manager_bufh,
               ns_mod,
               "BufferManagerModified",
-              {idx-1, 0},
-              {idx-1, -1},
+              { idx - 1, 0 },
+              { idx - 1, -1 },
               {}
             )
           else
             vim.api.nvim_buf_add_highlight(
-              Buffer_manager_bufh,      -- buffer: integer,
-              -1,                       -- ns_id: integer,
-              "BufferManagerModified",  -- hl_group: string,
-              idx-1,                    -- line: integer,
-              0,                        -- col_start: integer,
-              -1                        -- col_end: integer
+              Buffer_manager_bufh,     -- buffer: integer,
+              -1,                      -- ns_id: integer,
+              "BufferManagerModified", -- hl_group: string,
+              idx - 1,                 -- line: integer,
+              0,                       -- col_start: integer,
+              -1                       -- col_end: integer
             )
           end
         end
@@ -645,7 +645,6 @@ function M.toggle_quick_menu()
   end
 end
 
-
 function M.select_menu_item(command)
   local idx = vim.fn.line(".")
   if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
@@ -655,7 +654,6 @@ function M.select_menu_item(command)
   M.nav_file(idx, command)
   update_buffers()
 end
-
 
 local function get_menu_items()
   log.trace("_get_menu_items()")
@@ -707,7 +705,6 @@ function M.on_menu_save()
   log.trace("on_menu_save()")
   set_mark_list(get_menu_items())
 end
-
 
 function M.nav_file(id, command)
   log.trace("nav_file(): Navigating to", id)
@@ -761,7 +758,6 @@ function M.nav_next()
   end
 end
 
-
 function M.nav_prev()
   log.trace("nav_prev()")
   M.update_marks()
@@ -769,13 +765,12 @@ function M.nav_prev()
   local prev_buf_line = current_buf_line - 1
   if prev_buf_line < 1 then
     if config.loop_nav then
-        M.nav_file(#bm.marks)
+      M.nav_file(#bm.marks)
     end
   else
     M.nav_file(prev_buf_line)
   end
 end
-
 
 function M.location_window(options)
   local default_options = {
@@ -797,7 +792,6 @@ function M.location_window(options)
   }
 end
 
-
 function M.save_menu_to_file(path)
   log.trace("save_menu_to_file()")
   if path == nil or path == "" then
@@ -816,7 +810,6 @@ function M.save_menu_to_file(path)
   end
   file:close()
 end
-
 
 function M.load_menu_from_file(path)
   log.trace("load_menu_from_file()")
@@ -839,6 +832,5 @@ function M.load_menu_from_file(path)
   set_mark_list(lines)
   update_buffers()
 end
-
 
 return M

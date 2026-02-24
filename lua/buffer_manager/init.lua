@@ -29,7 +29,6 @@ function M.initialize_marks()
   end
 end
 
-
 function M.setup(config)
   log.trace("setup(): Setting up...")
 
@@ -51,7 +50,7 @@ function M.setup(config)
     short_file_names = false,
     show_depth = true,
     short_term_names = false,
-    show_cols = "number", -- "kbs", "both"
+    show_cols = "number", -- "kbs", "both", "keep"
     loop_nav = true,
     highlight = "",
     win_extra_options = {},
@@ -61,7 +60,7 @@ function M.setup(config)
     show_indicators = nil,
     toggle_key_bindings = { "q", "<ESC>" },
     use_shortcuts = false,
-    win_position = { h=0.5, v=0.5 },
+    win_position = { h = 0.5, v = 0.5 },
     quick_kbs = {
       enabled = false,
       kb = nil
@@ -73,7 +72,6 @@ function M.setup(config)
   BufferManagerConfig = complete_config
   log.debug("setup(): Config", BufferManagerConfig)
 end
-
 
 function M.get_config()
   log.trace("get_config()")
