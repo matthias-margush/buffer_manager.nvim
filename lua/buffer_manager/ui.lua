@@ -48,6 +48,8 @@ local M = {}
 
 Buffer_manager_win_id = nil
 Buffer_manager_bufh = nil
+local Buffer_manager_prev_bufh = nil
+local Buffer_manager_closing = false
 local initial_marks = {}
 local config = bm.get_config()
 
@@ -55,64 +57,37 @@ local config = bm.get_config()
 -- of items.
 local function close_menu(force_save)
   force_save = force_save or false
+  if Buffer_manager_closing then return end
+  Buffer_manager_closing = true
 
-  vim.api.nvim_win_close(Buffer_manager_win_id, true)
-
+  local win_id = Buffer_manager_win_id
+  local prev_bufh = Buffer_manager_prev_bufh
   Buffer_manager_win_id = nil
   Buffer_manager_bufh = nil
+  Buffer_manager_prev_bufh = nil
+
+  -- Restore the previous buffer in the window (triggers BufLeave, guarded above)
+  if win_id ~= nil
+    and vim.api.nvim_win_is_valid(win_id)
+    and prev_bufh ~= nil
+    and vim.api.nvim_buf_is_valid(prev_bufh) then
+    vim.api.nvim_win_set_buf(win_id, prev_bufh)
+  end
+
+  Buffer_manager_closing = false
 end
 
 local function create_window()
   log.trace("_create_window()")
 
-  local width = 60
-  local height = 10
-
-  if config.width ~= nil then
-    if config.width <= 1 then
-      local gwidth = vim.api.nvim_list_uis()[1].width
-      width = math.floor(gwidth * config.width)
-    else
-      width = config.width
-    end
-  end
-
-  if config.height ~= nil then
-    if config.height <= 1 then
-      local gheight = vim.api.nvim_list_uis()[1].height
-      height = math.floor(gheight * config.height)
-    else
-      height = config.height
-    end
-  end
-
-  local borderchars = config.borderchars
   local bufnr = vim.api.nvim_create_buf(false, false)
-
-  local line = math.max(1, math.floor((vim.o.lines - height) * config.win_position.v) - 1)
-  local col = math.max(1, math.floor((vim.o.columns - width) * config.win_position.h))
-
-  local win_config = {
-    title = "Buffers",
-    line = line,
-    col = col,
-    minwidth = width,
-    minheight = height,
-    borderchars = borderchars,
-  }
-  local Buffer_manager_win_id, win = popup.create(bufnr, win_config)
-
-  if config.highlight ~= "" then
-    vim.api.nvim_set_option_value(
-      "winhighlight",
-      config.highlight,
-      { win = win.border.win_id }
-    )
-  end
+  local win_id = vim.api.nvim_get_current_win()
+  Buffer_manager_prev_bufh = vim.api.nvim_win_get_buf(win_id)
+  vim.api.nvim_win_set_buf(win_id, bufnr)
 
   return {
     bufnr = bufnr,
-    win_id = Buffer_manager_win_id,
+    win_id = win_id,
   }
 end
 
@@ -446,6 +421,7 @@ end
 
 
 function M.toggle_quick_menu()
+  if Buffer_manager_closing then return end
   log.trace("toggle_quick_menu()")
   if Buffer_manager_win_id ~= nil and vim.api.nvim_win_is_valid(Buffer_manager_win_id) then
     if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
